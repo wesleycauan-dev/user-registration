@@ -4,13 +4,15 @@ import cors from "cors";
 
 const app = express();
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "http://localhost:5173",
-].filter(Boolean);
-
-app.use(cors({ origin: allowedOrigins }));
+app.use(cors());
 app.use(express.json());
+
+mongoose
+  .connect(
+    "mongodb+srv://users_app:!cMu3.ieq5wWLi-@cluster0.m9o6mof.mongodb.net/Users?appName=Cluster0",
+  )
+  .then(() => console.log("Conectado ao banco mongo"))
+  .catch(() => console.log("Erro ao conectar ao banco mongo"));
 
 const usersSchema = new mongoose.Schema(
   {
@@ -22,10 +24,6 @@ const usersSchema = new mongoose.Schema(
 );
 
 const User = mongoose.model("Users", usersSchema);
-
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
 
 let users = [
   {
@@ -67,21 +65,6 @@ app.delete("/users/:id", async (req, res) => {
 
 const port = process.env.PORT || 3333;
 
-async function startServer() {
-  if (!process.env.MONGODB_URI) {
-    throw new Error("Configure a variável MONGODB_URI antes de iniciar a API.");
-  }
-
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("Conectado ao banco MongoDB");
-    app.listen(port, () => {
-      console.log(`Servidor rodando na porta ${port}`);
-    });
-  } catch (error) {
-    console.error("Erro ao conectar ao MongoDB:", error.message);
-    process.exit(1);
-  }
-}
-
-startServer();
+app.listen(port, () => {
+  console.log("Servidor Rodando agora");
+});
