@@ -1,0 +1,33 @@
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: #fff;
+  border-radius: 0.8rem;
+}
+
+.user-card-avatar {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-card-info {
+}
+
+.user-card-delete {
+  margin-left: auto;
+  padding: 0.6rem 0.9rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background-color: #d32f2f;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.user-card-delete:hover {
+  background-color: #b71c1c;
+}
