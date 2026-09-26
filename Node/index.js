@@ -1,27 +1,16 @@
-import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+].filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
-
-const mongoUri = process.env.MONGODB_URI;
-
-if (mongoUri) {
-  mongoose
-    .connect(mongoUri, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log("Conectado ao banco MongoDB"))
-    .catch((error) =>
-      console.error("Erro ao conectar ao MongoDB:", error.message),
-    );
-} else {
-  console.error(
-    "MONGODB_URI não definida. Configure a variável no arquivo .env.",
-  );
-}
 
 const usersSchema = new mongoose.Schema(
   {
@@ -34,71 +23,65 @@ const usersSchema = new mongoose.Schema(
 
 const User = mongoose.model("Users", usersSchema);
 
-function requireDatabase(req, res, next) {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({
-      message:
-        "Banco indisponível. Verifique MONGODB_URI e a conexão com o MongoDB.",
-    });
-  }
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
-  next();
-}
+let users = [
+  {
+    id: 1,
+    name: "Cauan",
+    age: 20,
+    email: "cauan@email.com",
+  },
+];
 
 // retornar usuarios
-app.get("/users", requireDatabase, async (req, res) => {
-  try {
-    const bankUsers = await User.find();
-    res.json(bankUsers);
-  } catch (error) {
-    console.error("Erro ao buscar usuários:", error.message);
-    res.status(500).json({ message: "Não foi possível buscar os usuários." });
-  }
+app.get("/users", async (req, res) => {
+  const bankUsers = await User.find();
+
+  res.json(bankUsers);
 });
 
 // criar usuarios
-app.post("/users", requireDatabase, async (req, res) => {
-  try {
-    const createdUser = await User.create(req.body);
-    res.status(201).json(createdUser);
-  } catch (error) {
-    if (error.code === 11000) {
-      return res
-        .status(409)
-        .json({ message: "Este e-mail já está cadastrado." });
-    }
+app.post("/users", async (req, res) => {
+  console.log(req.body);
 
-    if (error.name === "ValidationError" || error.name === "CastError") {
-      return res.status(400).json({ message: "Dados de usuário inválidos." });
-    }
+  const crateUser = await User.create(req.body);
 
-    console.error("Erro ao criar usuário:", error.message);
-    res.status(500).json({ message: "Não foi possível criar o usuário." });
-  }
+  users.push(req.body);
+
+  res.json(crateUser);
 });
 
 // deletar usuario
-app.delete("/users/:id", requireDatabase, async (req, res) => {
-  try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+app.delete("/users/:id", async (req, res) => {
+  const deletedUser = await User.findByIdAndDelete(req.params.id);
 
-    if (!deletedUser) {
-      return res.status(404).json({ message: "Usuário não encontrado." });
-    }
-
-    res.status(204).end();
-  } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({ message: "ID de usuário inválido." });
-    }
-
-    console.error("Erro ao excluir usuário:", error.message);
-    res.status(500).json({ message: "Não foi possível excluir o usuário." });
+  if (!deletedUser) {
+    return res.status(404).json({ message: "Usuario nao encontrado" });
   }
+
+  res.status(204).end();
 });
 
 const port = process.env.PORT || 3333;
 
-app.listen(port, () => {
-  console.log("Servidor Rodando agora");
-});
+async function startServer() {
+  if (!process.env.MONGODB_URI) {
+    throw new Error("Configure a variável MONGODB_URI antes de iniciar a API.");
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log("Conectado ao banco MongoDB");
+    app.listen(port, () => {
+      console.log(`Servidor rodando na porta ${port}`);
+    });
+  } catch (error) {
+    console.error("Erro ao conectar ao MongoDB:", error.message);
+    process.exit(1);
+  }
+}
+
+startServer();

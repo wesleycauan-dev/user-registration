@@ -5,13 +5,4 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "/user-registration/",
   plugins: [react()],
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:3333",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-      },
-    },
-  },
 });

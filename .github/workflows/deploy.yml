@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,6 +33,13 @@ jobs:
       - name: Install dependencies
         working-directory: React
         run: npm ci
+
+      - name: Validate API URL
+        run: |
+          if [ -z "$VITE_API_URL" ]; then
+            echo "Configure a variável VITE_API_URL nas variáveis do GitHub Actions."
+            exit 1
+          fi
 
       - name: Build
         working-directory: React
