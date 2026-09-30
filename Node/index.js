@@ -45,11 +45,11 @@ app.get("/users", async (req, res) => {
 app.post("/users", async (req, res) => {
   console.log(req.body);
 
-  const creteUser = await User.create(req.body);
+  const createUser = await User.create(req.body);
 
   users.push(req.body);
 
-  res.json(creteUser);
+  res.json(createUser);
 });
 
 // deletar usuario
