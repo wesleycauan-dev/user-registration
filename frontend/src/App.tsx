@@ -66,7 +66,7 @@ export default function App() {
         <form onSubmit={handleSubmit} noValidate>
           <label>
             Nome
-            <input value={form.name} onChange={update("name")} placeholder="Maria Souza" />
+            <input value={form.name} onChange={update("name")} placeholder="Wesley Cauan" />
           </label>
           <label>
             E-mail
@@ -74,7 +74,7 @@ export default function App() {
               type="email"
               value={form.email}
               onChange={update("email")}
-              placeholder="maria@email.com"
+              placeholder="wesleycauan@email.com"
             />
           </label>
           <label>
