@@ -16,7 +16,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- "Banco de dados" em arquivo JSON (simples para portfólio) ---
+// "Banco de dados" 
 async function loadUsers() {
   if (!existsSync(DB_FILE)) return [];
   return JSON.parse(await readFile(DB_FILE, "utf-8"));
